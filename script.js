@@ -73,11 +73,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 return;
             case '√':
-                if (display.textContent === '0') return;  // Avoid computing square root of zero display
-                display.textContent = Math.sqrt(parseFloat(display.textContent)).toString();
-                operationDisplay.textContent = `√(${display.textContent})`;
-                isNewOperation = true;
-                return;
+                    if (display.textContent === '0') return;  
+                    const sqrtResult = Math.sqrt(parseFloat(display.textContent));
+                    display.textContent = sqrtResult.toString();
+                    operationDisplay.textContent = `√(${display.textContent})`;
+                    lastResult = sqrtResult; 
+                    isNewOperation = true;
+                    return;
             default:
                 if (isNewOperation && '+-x÷'.includes(value)) {
                     display.textContent = lastResult;
