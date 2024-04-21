@@ -72,14 +72,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     isNewOperation = true;
                 }
                 return;
+                
             case '√':
-                    if (display.textContent === '0') return;  
-                    const sqrtResult = Math.sqrt(parseFloat(display.textContent));
-                    display.textContent = sqrtResult.toString();
-                    operationDisplay.textContent = `√(${display.textContent})`;
-                    lastResult = sqrtResult; 
-                    isNewOperation = true;
-                    return;
+                if (display.textContent === '0') return;
+                const sqrtResult = Math.sqrt(parseFloat(display.textContent));
+                display.textContent = sqrtResult.toString();
+                operationDisplay.textContent = `√(${display.textContent})`;
+                lastResult = sqrtResult;
+                isNewOperation = true;
+                return;
+
+            case '^':
+                    if (isNewOperation) {
+                        display.textContent = lastResult.toString();
+                        operationDisplay.textContent = lastResult.toString();
+                        isNewOperation = false;
+                    }
+                    display.textContent += '^';
+                    operationDisplay.textContent += '^';
+                    break;
+                
             default:
                 if (isNewOperation && '+-x÷'.includes(value)) {
                     display.textContent = lastResult;
