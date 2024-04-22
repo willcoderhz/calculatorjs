@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
             operationDisplay.textContent = '';
             isNewOperation = false;
         }
-    
+
         switch (value) {
             case 'C':
                 display.textContent = '0';
@@ -63,8 +63,8 @@ document.addEventListener('DOMContentLoaded', function() {
             case '=':
                 try {
                     const result = evaluate(operationDisplay.textContent);
-                    display.textContent = result;
-                    operationDisplay.textContent = result;
+                    display.textContent = result.toFixed(4);
+                    operationDisplay.textContent = result.toFixed(4);
                     lastResult = result;
                     isNewOperation = true;
                 } catch (error) {
@@ -72,26 +72,43 @@ document.addEventListener('DOMContentLoaded', function() {
                     isNewOperation = true;
                 }
                 return;
-                
             case '√':
-                if (display.textContent === '0') return;
-                const sqrtResult = Math.sqrt(parseFloat(display.textContent));
-                display.textContent = sqrtResult.toString();
-                operationDisplay.textContent = `√(${display.textContent})`;
-                lastResult = sqrtResult;
-                isNewOperation = true;
-                return;
-
-            case '^':
-                    if (isNewOperation) {
-                        display.textContent = lastResult.toString();
-                        operationDisplay.textContent = lastResult.toString();
-                        isNewOperation = false;
+                if (display.textContent !== '0' && display.textContent !== '') {
+                    operationDisplay.textContent = `√(${display.textContent})`;
+                    display.textContent = `√(${display.textContent})`;
+                    try {
+                        const sqrtResult = evaluate(operationDisplay.textContent);
+                        display.textContent = sqrtResult.toFixed(4);
+                        operationDisplay.textContent = sqrtResult.toFixed(4);
+                        lastResult = sqrtResult;
+                        isNewOperation = true;
+                    } catch (error) {
+                        display.textContent = 'Error';
+                        isNewOperation = true;
                     }
-                    display.textContent += '^';
-                    operationDisplay.textContent += '^';
-                    break;
-                
+                }
+                return;
+            case '.':
+                if (!display.textContent.includes('.')) {
+                    display.textContent += '.';
+                    operationDisplay.textContent += '.';
+                }
+                return;
+            case '0':
+                if (display.textContent !== '0') {
+                    display.textContent += '0';
+                    operationDisplay.textContent += '0';
+                }
+                return;
+            case '^':
+                if (isNewOperation) {
+                    display.textContent = lastResult.toString();
+                    operationDisplay.textContent = lastResult.toString();
+                    isNewOperation = false;
+                }
+                display.textContent += '^';
+                operationDisplay.textContent += '^';
+                break;
             default:
                 if (isNewOperation && '+-x÷'.includes(value)) {
                     display.textContent = lastResult;
@@ -103,11 +120,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 operationDisplay.textContent += value;
         }
     }
-    
 
     function evaluate(expression) {
         let sanitizedExpression = expression.replace(/x/g, '*').replace(/÷/g, '/');
         sanitizedExpression = sanitizedExpression.replace(/\^/g, '**');
-        return Function('"use strict";return (' + sanitizedExpression + ')')();
+        sanitizedExpression = sanitizedExpression.replace(/√\(([^)]+)\)/g, (match, number) => `Math.sqrt(${number})`);
+
+        const result = Function('"use strict";return (' + sanitizedExpression + ')')();
+        return Number(result); // Ensure the result is a number
     }
 });
